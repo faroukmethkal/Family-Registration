@@ -1,0 +1,121 @@
+﻿@using Assignment_1.Data
+@using Assignment_1.Models
+@using Microsoft.AspNetCore.Components
+@inject IServerData ServerData
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavgMan
+
+<button @onclick="@(()=> ShowPop())">
+    <span class="oi oi-pencil"/>
+</button>
+@if (popup)
+{
+    <div class="modal" tabindex="-1" style="display: block">
+    <div class="main">
+       <div class="form-Contanier">
+            <EditForm Model="@petToEdit" OnValidSubmit="@AddPet">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                
+                    <div class="header">
+                        <span> Edit @ComponentTile</span>
+                        <br/> <span class="error">@errorMessage</span>
+                    </div>
+                    <span> @errorMessage </span>
+                    <div class="form-field">
+                        <div>
+                            <label > Name </label>
+                        </div>
+                        <div>
+                            <input placeholder="First Name" @bind="@petToEdit.Name"/>
+                        </div>
+
+                    </div>
+                    <div class="form-field">
+                        <div><label > Species </label></div>
+                        <div><input placeholder="Last name" @bind="@petToEdit.Species"/></div>
+                    </div>
+                    <div class="form-field">
+                        <div><label class="username">Age</label></div>
+                        <div><input placeholder="Age" @bind="@petToEdit.Age"/></div>
+                    </div>
+
+                <div class="form-field footer">
+                        <div><button class="btn btn-success" type="submit">Add</button></div>
+                        <div><button class="btn btn-secondary" @onclick="ClosePop">Cancel</button></div>
+                    </div>
+            </EditForm>
+             </div>
+        </div>
+</div>
+  
+
+}
+
+@code {
+    [Parameter]
+    public string ComponentTile { get; set; }
+    
+    [Parameter]
+    public int ChildId { get; set; }
+    
+    [Parameter]
+    public int petId { get; set; }
+    
+    [Parameter]
+    public int FamilyId { get; set; }
+    
+    private Pet petToEdit;
+
+    private string errorMessage { get; set; }
+
+    
+    private bool popup = false;
+
+    private void ShowPop()
+    {
+        popup = true;
+    }
+
+    private void ClosePop()
+    {
+        popup = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ComponentTile.Equals("Pets"))
+        {
+            petToEdit = await ServerData.GetPet(FamilyId, petId);
+
+        }
+        else
+        {
+            petToEdit = await ServerData.GetChildPet(FamilyId, ChildId, petId);
+        }
+    }
+    private void AddPet()
+    {
+        try
+        {
+            if (ComponentTile.Equals("Pets"))
+            {
+                ServerData.UpdatePet(FamilyId, petToEdit);
+                popup = false;   
+            }
+            else
+            {
+                ServerData.UpdateChildPet(FamilyId, ChildId, petToEdit);
+                popup = false;
+            }
+
+            
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            errorMessage = e.Message;
+        }
+   
+    }
+}

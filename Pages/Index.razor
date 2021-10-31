@@ -1,0 +1,122 @@
+@page "/"
+@using Assignment_1.Data
+@using Assignment_1.Models
+@inject IServerData ServerData
+<div class="myContainer">
+    <div class="myField">
+        <div>
+            <label>Minum Adult Age</label>
+        </div>
+        <div>
+            <input type="text" @bind="@minAdultAge"/>
+        </div>
+
+    </div>
+    <div class="myField">
+        <div>
+            <label>Max Adult Age</label>
+        </div>
+        <div>
+            <input type="text" @bind="@maxAdultAge"/>
+        </div>
+
+    </div>
+    <div class="myField">
+        <div>
+            <label>Children</label>
+
+        </div>
+        <div>
+            <div >
+                <select style="width: 12rem; height: 2rem;     
+                                          border: none;
+                                          margin-left: 4.3rem;
+                                             border-radius: 10px 10px 10px 10px;
+                                             border-bottom: 1px solid #8d8a8a;
+                                             box-shadow: 0px 10px 22px -7px rgba(94,118,217,1);
+                     
+                                          " id="role" @onchange="handleHasChildSelect">
+                    <option Value="null">--</option>
+                    <option Value="yes">Has children</option>
+                    <option Value="no">Has no children</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+    <div class="myField">
+        <div>
+            <label>Pets</label>
+        </div>
+        <div >
+            <div >
+                <select style="width: 12rem; height: 2rem;     
+                                  border: none;
+                                  margin-left: 4.3rem;
+                                     border-radius: 10px 10px 10px 10px;
+                                     border-bottom: 1px solid #8d8a8a;
+                                     box-shadow: 0px 10px 22px -7px rgba(94,118,217,1);
+             
+                                  " id="role" @onchange="handleHasPetSelect">
+                    <option Value="null">--</option>
+                    <option Value="yes">Has pets</option>
+                    <option Value="no">Has no pets</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+    <div class="myField">
+        <button class="btn btn-success" @onclick="@onButtonClick">Filter</button>
+    </div>
+
+</div>
+
+@if (families == null)
+{
+    <p>List is not exist </p>
+}
+else if (!families.Any())
+{
+    <p>Loading..................</p>
+}
+else
+{
+    @foreach (Family family in families)
+
+    {
+        <FamilyDetails Family="@family"/>
+    }
+}
+
+@code
+{
+    private int? minAdultAge;
+    private int? maxAdultAge;
+    private bool? hasChild;
+    private bool? hasPet;
+
+    private IList<Family> families;
+
+    protected override async Task OnInitializedAsync()
+    {
+        families = await ServerData.getAllFamily(minAdultAge, maxAdultAge, hasChild, hasPet);
+    }
+
+    private void handleHasChildSelect(ChangeEventArgs e)
+    {
+        hasChild = e.Value.ToString().ToLower().Equals("yes") ? true : e.Value.ToString().ToLower().Equals("no") ? false : null;
+    }
+
+    private void handleHasPetSelect(ChangeEventArgs e)
+    {
+        hasPet = e.Value.ToString().ToLower().Equals("yes") ? true : e.Value.ToString().ToLower().Equals("no") ? false : null;
+    }
+
+    private async Task onButtonClick()
+    {
+        families = await ServerData.getAllFamily(minAdultAge, maxAdultAge, hasChild, hasPet);
+        Console.WriteLine($@"max {maxAdultAge} min {minAdultAge}");
+    }
+
+}

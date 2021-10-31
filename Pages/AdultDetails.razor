@@ -1,0 +1,75 @@
+﻿@using Assignment_1.Models
+@using Assignment_1.Data
+@inject IServerData ServerData
+
+<RubberComponent ComponentTitle="Adult" Family="@Family">
+
+    <div class="container">
+        <table class="table ">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Age</th>
+                <th scope="col">Sex</th>
+                <th scope="col">HaierColor</th>
+                <th scope="col">EyeColor</th>
+                <th scope="col">Weight</th>
+                <AuthorizeView>
+                    <Authorized>
+                        <th scope="col">Edit</th>
+                        <th scope="col">Remove</th>
+                    </Authorized>
+
+                </AuthorizeView>
+
+            </tr>
+            </thead>
+            @foreach (Adult adult in Family.Adults)
+            {
+                <tbody>
+                <tr>
+                    <td>@adult.FirstName @adult.LastName</td>
+                    <td>@adult.Age</td>
+                    <td>@adult.Sex</td>
+                    <td>@adult.HairColor</td>
+                    <td>@adult.EyeColor</td>
+                    <td>@adult.Weight</td>
+                    <AuthorizeView>
+                        <Authorized>
+                            <td>
+                                <div><EditComponent AdultID="@adult.Id" FamilyId="@Family.Id" ComponentTile="Edit Adult"/></div>
+                            </td>
+                            <td>
+                                <button @onclick="@(() => RemoveAdult(Family.Id, adult.Id))">
+                                    <span class="oi oi-trash"/>
+                                </button>
+
+                            </td>
+                        </Authorized>
+
+                    </AuthorizeView>
+
+                </tr>
+                </tbody>
+            }
+        </table>
+
+    </div>
+
+
+</RubberComponent>
+
+@code {
+    
+    [Parameter]
+    public Family Family { get; set; }
+    
+    private void RemoveAdult(int fId, int aId)
+    {
+        Adult adultToRemove = Family.Adults.First(a => a.Id == aId);
+        ServerData.RemoveAdult(fId, aId);
+        Family.Adults.Remove(adultToRemove);
+    }
+
+
+}

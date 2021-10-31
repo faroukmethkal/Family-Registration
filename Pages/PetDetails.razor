@@ -1,0 +1,159 @@
+﻿@using Assignment_1.Models
+@using Assignment_1.Data
+@inject IServerData ServerData
+
+<RubberComponent ComponentTitle="@ComponentTitle" Family="@Family">
+    @if (ComponentTitle.Equals("Pets"))
+    {
+        @if (Family.Pets.Any())
+        {
+            <table class="table">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Species</th>
+                    <th scope="col">Age</th>
+                    <AuthorizeView>
+                        <Authorized>
+                            <th scope="col">Edit</th>
+                            <th scope="col">Remove</th>
+                        </Authorized>
+                    </AuthorizeView>
+
+                </tr>
+                </thead>
+
+                @foreach (Pet pet in Family.Pets)
+                {
+                    <tbody>
+                    <tr>
+                        <td>@pet.Id</td>
+                        <td>@pet.Name</td>
+                        <td>@pet.Species</td>
+                        <td>@pet.Age</td>
+
+                        <AuthorizeView>
+                            <Authorized>
+                                <td>
+                                    <div>
+                                        <EditPet petId="@pet.Id" ComponentTile="Pets" FamilyId="@Family.Id"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button @onclick="@(() => RemovePet(Family.Id, pet.Id))">
+                                        <span class="oi oi-trash"/>
+                                    </button>
+                                </td>
+                            </Authorized>
+                        </AuthorizeView>
+
+
+                    </tr>
+                    </tbody>
+                }
+
+
+            </table>
+        }
+    }
+    @if (ComponentTitle.Equals("Child Pets"))
+    {
+        @if (ChildPets().Any())
+        {
+            <table class="table">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Species</th>
+                    <th scope="col">Age</th>
+                    <AuthorizeView>
+                        <Authorized>
+                            <th scope="col">Edit</th>
+                            <th scope="col">Remove</th>
+                        </Authorized>
+                    </AuthorizeView>
+                </tr>
+                </thead>
+
+                @foreach (Pet pet in ChildPets())
+                {
+                    <tbody>
+                    <tr>
+                        <td>@pet.Id</td>
+                        <td>@pet.Name</td>
+                        <td>@pet.Species</td>
+                        <td>@pet.Age</td>
+                        <AuthorizeView>
+                            <Authorized>
+                                <td>
+                                    <div>
+                                        <EditPet petId="@pet.Id" ChildId="@Id" ComponentTile="Child Pets" FamilyId="@Family.Id"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button @onclick="@(() => RemoveChildPet(Family.Id, Id, pet.Id))">
+                                        <span class="oi oi-trash"/>
+                                    </button>
+                                </td>
+                            </Authorized>
+                        </AuthorizeView>
+
+                    </tr>
+                    </tbody>
+                }
+
+
+            </table>
+        }
+    }
+    else
+    {
+        <span >Has no Pets</span>
+    }
+
+</RubberComponent>
+
+@code {
+
+
+    [Parameter]
+    public Family Family { get; set; }
+
+    [Parameter]
+    public string ComponentTitle { get; set; }
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private IList<Pet> ChildPets()
+    {
+        foreach (var child in Family.Children)
+        {
+            if (child.Id == Id)
+            {
+                return child.Pets;
+            }
+        }
+        return null;
+    }
+
+    private void RemovePet(int fId, int pId)
+    {
+        Pet petToRemove = Family.Pets.First(p => p.Id == pId);
+        ServerData.RemoveAdult(fId, pId);
+        Family.Pets.Remove(petToRemove);
+    }
+
+    private void RemoveChildPet(int fId, int childId, int pId)
+    {
+        Child fChild = Family.Children.First(c => c.Id == childId);
+        Pet petToRemove = fChild.Pets.First(p => p.Id == pId);
+        ServerData.RemoveAdult(fId, pId);
+        fChild.Pets.Remove(petToRemove);
+    }
+
+
+
+}

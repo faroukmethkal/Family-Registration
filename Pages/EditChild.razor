@@ -1,0 +1,132 @@
+﻿@using Assignment_1.Data
+@using Assignment_1.Models
+@using Microsoft.AspNetCore.Components
+@inject IServerData ServerData
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavgMan
+
+<button @onclick="@(()=> ShowPop())">
+    <span class="oi oi-pencil"/>
+</button>
+@if (popup)
+{
+    <div class="modal" tabindex="-1" style="display: block">
+    <div class="main">
+       <div class="form-Contanier">
+            <EditForm Model="@ChildToEdit" OnValidSubmit="@AddChild">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                
+                    <div class="header">
+                        <span> Edit @ComponentTile</span>
+                        <br/> <span class="error">@errorMessage</span>
+                    </div>
+                    <span> @errorMessage </span>
+                    <div class="form-field">
+                        <div>
+                            <label > First Name </label>
+                        </div>
+                        <div>
+                            <input placeholder="First Name" @bind="@ChildToEdit.FirstName"/>
+                        </div>
+
+                    </div>
+                    <div class="form-field">
+                        <div><label > Last Name </label></div>
+                        <div><input placeholder="Last name" @bind="@ChildToEdit.LastName"/></div>
+                    </div>
+                    <div class="form-field">
+                        <div><label class="username">Age</label></div>
+                        <div><input placeholder="Age" @bind="@ChildToEdit.Age"/></div>
+                    </div>
+                    <div class="form-field">
+                        <div><label class="password">HaierColor</label>
+                        </div>
+                        <div><input placeholder="HaierColor" @bind="@ChildToEdit.HairColor"/></div>
+                    </div>
+                    <div class="form-field">
+                        <div><label class="password">EyeColor</label>
+                        </div>
+                        <div><input placeholder="EyeColor" @bind="@ChildToEdit.EyeColor"/></div>
+                    </div>
+                    <div class="form-field">
+                        <div><label class="password">Weight</label>
+                        </div>
+                        <div><input placeholder="Weight" @bind="@ChildToEdit.Weight"/></div>
+                    </div>
+                    <div class="form-field">
+                        <div><label class="password"><span class="oi oi-role"/>Sex</label></div >
+                        <div class="roleSelector">
+                            <InputSelect style="width: 12rem; height: 2rem;     
+                           border: none;
+                           margin-left: 4.3rem;
+                              border-radius: 10px 10px 10px 10px;
+                              border-bottom: 1px solid #8d8a8a;
+                              box-shadow: 0px 10px 22px -7px rgba(94,118,217,1);
+      
+                           " id="role" @bind-Value="@ChildToEdit.Sex">
+                                <option value="F">F</option>
+                                <option value="M">M</option>
+                            </InputSelect>
+                        </div>
+
+                    </div>
+
+                    <div class="form-field footer">
+                        <div><button class="btn btn-success" type="submit">Add</button></div>
+                        <div><button class="btn btn-secondary" @onclick="ClosePop">Cancel</button></div>
+                    </div>
+            </EditForm>
+             </div>
+        </div>
+</div>
+  
+    
+}
+
+@code {
+    [Parameter]
+    public string ComponentTile { get; set; }
+    
+    [Parameter]
+    public int ChildId { get; set; }
+    
+    [Parameter]
+    public int FamilyId { get; set; }
+    
+    private Child ChildToEdit;
+
+    private string errorMessage { get; set; }
+
+    
+    private bool popup = false;
+
+    private void ShowPop()
+    {
+        popup = true;
+    }
+
+    private void ClosePop()
+    {
+        popup = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ChildToEdit = await ServerData.GetChild(FamilyId, ChildId);
+    }
+    private void AddChild()
+    {
+        try
+        {
+            ServerData.UpdateChild(FamilyId, ChildToEdit);
+            popup = false;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            errorMessage = e.Message;
+        }
+   
+    }
+}

@@ -1,0 +1,19 @@
+.myContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    justify-items: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.77);
+   height: 3rem;
+    border-radius: 10px;
+    border-bottom: solid 1px #462626;
+    box-shadow: -2px 11px 20px 6px rgba(0,0,0,0.75);
+    margin-bottom: 1rem;
+    
+}
+.myField{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
